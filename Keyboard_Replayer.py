@@ -103,6 +103,5 @@ def replay(inputs):
 if __name__ == "__main__":
     time.sleep(2)
     recorded_inputs = keyboard_record()
-    print(recorded_inputs)
     time.sleep(3)
     replay(recorded_inputs)
