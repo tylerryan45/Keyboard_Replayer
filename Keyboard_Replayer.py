@@ -10,6 +10,7 @@ recorded_key_presses: dict = {}
 def keyboard_record():
     global start_time
     global end_time
+    global keys_pressed
     global recorded_key_presses
 
     def on_press(key):
@@ -18,26 +19,29 @@ def keyboard_record():
         end_time = time.perf_counter()
         if key == keyboard.Key.esc:
             return False
-        pending_record = (end_time - start_time, str(key) + " p")
-        if not recorded_key_presses:
-            recorded_key_presses.append(pending_record)
-        elif recorded_key_presses[len(recorded_key_presses) - 1][1] != pending_record[1]:
-            recorded_key_presses.append(pending_record)
+        incoming_key_stroke = (end_time - start_time, str(key) + " p")
+        if recorded_key_presses == []:
+            recorded_key_presses.append(incoming_key_stroke)
+            keys_pressed.add(key)
             start_time = time.perf_counter()
-
+        elif key not in keys_pressed:
+            recorded_key_presses.append(incoming_key_stroke)
+            keys_pressed.add(key)
+            start_time = time.perf_counter()
 
     def on_release(key):
         global start_time
         global end_time
         end_time = time.perf_counter()
-        recorded_key_presses.append((end_time - start_time, str(key) + " r"))
+        outgoing_key_stroke = (end_time - start_time, str(key) + " r")
+        recorded_key_presses.append(outgoing_key_stroke)
+        keys_pressed.remove(key)
         start_time = time.perf_counter()
 
     start_time = time.perf_counter()
     recorded_key_presses = []
-    with keyboard.Listener(
-            on_press=on_press,
-            on_release=on_release) as listener:
+    keys_pressed = set()
+    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         listener.join()
     return recorded_key_presses
 
@@ -86,22 +90,25 @@ def release_special_key(key, keyboard):
 
 def replay(inputs):
     keyboard = Controller()
-    for input in inputs:
-        time.sleep(float(input[0]))
-        if input[1][-1] == "p":
-            if input[1][0] == "'":
-                keyboard.press(str(input[1][1:-3]))
-            elif input[1][0] == "K":
-                press_special_key(input[1][:-2], keyboard)
-        elif input[1][-1] == "r":
-            if input[1][0] == "'":
-                keyboard.release(str(input[1][1:-3]))
-            elif input[1][0] == "K":
-                release_special_key(input[1][:-2], keyboard)
+    for i in range(len(inputs)):
+        action = inputs[i]
+        time.sleep(float(action[0]))
+        if action[1][-1] == "p":
+            if action[1][0] == "'":
+                keyboard.press(str(action[1][1:-3]))
+            elif action[1][0] == "K":
+                press_special_key(action[1][:-2], keyboard)
+        elif action[1][-1] == "r":
+            if action[1][0] == "'":
+                keyboard.release(str(action[1][1:-3]))
+            elif action[1][0] == "K":
+                release_special_key(action[1][:-2], keyboard)
 
 
 if __name__ == "__main__":
-    time.sleep(2)
     recorded_inputs = keyboard_record()
-    time.sleep(3)
+    print(recorded_inputs)
+    # wait_for_go()
     replay(recorded_inputs)
+    print("replay done")
+    time.sleep(5)
