@@ -105,26 +105,19 @@ def replay(inputs):
                 release_special_key(action[1][:-2], controller)
 
 
+def wait_for_go():
+    def on_press(key):
+        if key == keyboard.Key.esc or keyboard.Key.enter:
+            return False
+
+    with keyboard.Listener(on_press=on_press) as listener:
+        listener.join()
+        listener.stop()
+
+
 if __name__ == "__main__":
     recorded_inputs = keyboard_record()
+    wait_for_go()
 
-    # Press and release space
-    # keyboard.press(Key.space)
-    # keyboard.release(Key.space)
-
-    # Type a lower case A; this will work even if no key on the
-    # physical keyboard is labelled 'A'
-    # keyboard.press('a')
-    # keyboard.release('a')
-
-    # Type two upper case As
-    # keyboard.press('A')
-    # keyboard.release('A')
-    # with keyboard.pressed(Key.shift):
-    #     keyboard.press('a')
-    #     keyboard.release('a')
-
-    # Type 'Hello World' using the shortcut type method
-    # keyboard.type('Hello World')
     replay(recorded_inputs)
     print("done")
