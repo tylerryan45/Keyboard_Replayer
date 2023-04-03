@@ -43,72 +43,88 @@ def keyboard_record():
     keys_pressed = set()
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         listener.join()
+        listener.stop()
     return recorded_key_presses
 
 
-def press_special_key(key, keyboard):
+def press_special_key(key, controller):
     if key == "Key.space":
-        keyboard.press(Key.space)
+        controller.press(Key.space)
     elif key == "Key.shift_l":
-        keyboard.press(Key.shift_l)
+        controller.press(Key.shift_l)
     elif key == "Key.shift_r":
-        keyboard.press(Key.shift_r)
+        controller.press(Key.shift_r)
     elif key == "Key.enter":
-        keyboard.press(Key.enter)
+        controller.press(Key.enter)
     elif key == "Key.left":
-        keyboard.press(Key.left)
+        controller.press(Key.left)
     elif key == "Key.right":
-        keyboard.press(Key.right)
+        controller.press(Key.right)
     elif key == "key.down":
-        keyboard.press(Key.down)
+        controller.press(Key.down)
     elif key == "key.up":
-        keyboard.press(Key.up)
+        controller.press(Key.up)
     elif key == "Key.backspace":
-        keyboard.press(Key.backspace)
+        controller.press(Key.backspace)
 
 
-def release_special_key(key, keyboard):
+def release_special_key(key, controller):
     if key == "Key.space":
-        keyboard.release(Key.space)
+        controller.release(Key.space)
     elif key == "Key.shift_l":
-        keyboard.release(Key.shift_l)
+        controller.release(Key.shift_l)
     elif key == "Key.shift_r":
-        keyboard.release(Key.shift_r)
+        controller.release(Key.shift_r)
     elif key == "Key.enter":
-        keyboard.release(Key.enter)
+        controller.release(Key.enter)
     elif key == "Key.left":
-        keyboard.release(Key.left)
+        controller.release(Key.left)
     elif key == "Key.right":
-        keyboard.release(Key.right)
+        controller.release(Key.right)
     elif key == "key.down":
-        keyboard.release(Key.down)
+        controller.release(Key.down)
     elif key == "key.up":
-        keyboard.release(Key.up)
+        controller.release(Key.up)
     elif key == "Key.backspace":
-        keyboard.release(Key.backspace)
+        controller.release(Key.backspace)
 
 
 def replay(inputs):
-    keyboard = Controller()
-    for i in range(len(inputs)):
-        action = inputs[i]
+    controller = Controller()
+    for action in inputs:
         time.sleep(float(action[0]))
         if action[1][-1] == "p":
             if action[1][0] == "'":
-                keyboard.press(str(action[1][1:-3]))
+                controller.press(str(action[1][1:-3]))
             elif action[1][0] == "K":
-                press_special_key(action[1][:-2], keyboard)
+                press_special_key(action[1][:-2], controller)
         elif action[1][-1] == "r":
             if action[1][0] == "'":
-                keyboard.release(str(action[1][1:-3]))
+                controller.release(str(action[1][1:-3]))
             elif action[1][0] == "K":
-                release_special_key(action[1][:-2], keyboard)
+                release_special_key(action[1][:-2], controller)
 
 
 if __name__ == "__main__":
     recorded_inputs = keyboard_record()
-    print(recorded_inputs)
-    # wait_for_go()
+
+    # Press and release space
+    # keyboard.press(Key.space)
+    # keyboard.release(Key.space)
+
+    # Type a lower case A; this will work even if no key on the
+    # physical keyboard is labelled 'A'
+    # keyboard.press('a')
+    # keyboard.release('a')
+
+    # Type two upper case As
+    # keyboard.press('A')
+    # keyboard.release('A')
+    # with keyboard.pressed(Key.shift):
+    #     keyboard.press('a')
+    #     keyboard.release('a')
+
+    # Type 'Hello World' using the shortcut type method
+    # keyboard.type('Hello World')
     replay(recorded_inputs)
-    print("replay done")
-    time.sleep(5)
+    print("done")
