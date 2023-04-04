@@ -38,6 +38,7 @@ def record_keyboard():
         keys_pressed.remove(key)
         start_time = time.perf_counter()
 
+    print("press esc to stop recording keyboard inputs.")
     start_time = time.perf_counter()
     recorded_key_presses = []
     keys_pressed = set()
@@ -90,11 +91,16 @@ def release_special_key(key, controller):
 
 
 def wait_for_go():
+
     def on_press(key):
+        pass
+
+    def on_release(key):
         if key == keyboard.Key.enter:
+            time.sleep(.1)
             return False
 
-    with keyboard.Listener(on_press=on_press) as listener:
+    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         listener.join()
     listener.stop()
 
@@ -117,10 +123,11 @@ def replay(inputs):
 
 def create_file(file_name):
     try:
-        file = open(file_name + ".txt", "x")
+        open(file_name + ".txt", "x")
         return True
     except FileExistsError:
-        print(f"{file_name} already exists. Would you like to overwrite it? \n1 = yes\n2 = no")
+        print(f"{file_name}.txt already exists. Would you like to overwrite it? Press enter to confirm input. "
+              f"\n1 = yes\n2 = no")
         while True:
             try:
                 response = input()
@@ -134,10 +141,10 @@ def create_file(file_name):
                 print(f"enter only 1 or 2. \nWould you like to overwrite {file_name}.txt? \n1 = yes\n2 = no")
 
 
-def user_saves_file():
+def user_wants_to_save_record():
     while True:
         try:
-            print("Would you like to save the recorded inputs? \n1 = yes\n2 = no")
+            print("Would you like to save the recorded inputs? Press enter to confirm input. \n1 = yes\n2 = no")
             result = input()
             if result == "1":
                 return True
@@ -146,29 +153,32 @@ def user_saves_file():
             else:
                 raise TypeError
         except TypeError:
-            print(result)
             print(f"Enter only 1 or 2.")
 
 
 def write_file(recorded_inputs, file_name):
     file = open(file_name + ".txt", "w")
     for action in recorded_inputs:
-        file.write(action + "\n")
+        file.write(str(action) + "\n")
 
 
 def make_file(recorded_inputs):
-    file_name = input("Enter the name of the file you would like to save the inputs to.")
+    file_name = input("Enter the name of the file you would like to save the inputs to. Press enter when finished "
+                      "writing file name. \n")
     if create_file(file_name):
         write_file(recorded_inputs, file_name)
         print("file created")
 
 
 if __name__ == "__main__":
+    print("press enter to start recording keyboard inputs.")
+    wait_for_go()
     recorded_inputs = record_keyboard()
+    print("press enter to replay recorded keyboard inputs.")
     wait_for_go()
     replay(recorded_inputs)
     print("finished replaying inputs")
-    if user_saves_file():
+    if user_wants_to_save_record():
         make_file(recorded_inputs)
     print("done")
 
