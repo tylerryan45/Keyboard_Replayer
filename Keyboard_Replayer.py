@@ -90,7 +90,7 @@ def release_special_key(key, controller):
         controller.release(Key.backspace)
 
 
-def wait_for_go():
+def wait_for_go(explanation):
 
     def on_press(key):
         pass
@@ -100,6 +100,7 @@ def wait_for_go():
             time.sleep(.1)
             return False
 
+    print(explanation)
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         listener.join()
     listener.stop()
@@ -170,16 +171,37 @@ def make_file(recorded_inputs):
         print("file created")
 
 
+def get_file(file_name):
+    try:
+        file = open(str(file_name) + ".txt", "r")
+        return file
+    except FileNotFoundError:
+        print(f"{file_name} not found")
+
+
+def create_inputs_from_input_file():
+    file = get_file(input("Enter the name of the file you would like to replay.\n"))
+    file_inputs = []
+    for line in file:
+        line = line.split(",")
+        time_amount = float(line[0][1:])
+        instruction = line[1][2:-3]
+        file_inputs.append((time_amount, instruction))
+    return file_inputs
+
+
 if __name__ == "__main__":
-    print("press enter to start recording keyboard inputs.")
-    wait_for_go()
+    wait_for_go("press enter to start recording keyboard inputs.")
     recorded_inputs = record_keyboard()
-    print("press enter to replay recorded keyboard inputs.")
-    wait_for_go()
+    wait_for_go("press enter to replay recorded keyboard inputs.")
     replay(recorded_inputs)
     print("finished replaying inputs")
     if user_wants_to_save_record():
         make_file(recorded_inputs)
     print("done")
+    # recorded_inputs = create_inputs_from_input_file()
+    # print(recorded_inputs)
+    # wait_for_go()
+    # replay(recorded_inputs)
 
 
