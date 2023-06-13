@@ -67,8 +67,7 @@ def run():
         recorded_inputs, file = create_inputs_from_input_file()
         Keyboard_Replayer.wait_for_go(f"press tab to replay keyboard inputs from {file.name}.")
         Keyboard_Replayer.replay(recorded_inputs)
-        result = input("would you like to replay another file? \n1 = yes\n2 = no\n")
-        if result == "2":
+        if not Keyboard_Replayer.user_boolean("would you like to replay another file?"):
             finished = True
     print("done")
 
