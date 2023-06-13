@@ -92,12 +92,11 @@ def release_special_key(key, controller):
 
 
 def wait_for_go(explanation):
-
     def on_press(key):
         pass
 
     def on_release(key):
-        if key == keyboard.Key.enter:
+        if key == keyboard.Key.tab:
             return False
 
     print(explanation)
@@ -122,14 +121,13 @@ def replay(inputs):
                 elif action[1][0] == "K":
                     release_special_key(action[1][:-2], controller)
     except Exception:
-        print("error occured while trying to replay the inputs." + inputs)
+        print("error occurred while trying to replay the inputs." + inputs)
 
 
-def user_wants_to_save_record():
+def user_boolean(explanation):
     while True:
         try:
-            result = input("Would you like to save the recorded inputs? Press enter to confirm input. "
-                           "\n1 = yes\n2 = no\n")
+            result = input(f"{explanation} \n1 = yes\n2 = no\n")
             if result == "1":
                 return True
             elif result == "2":
@@ -151,20 +149,18 @@ def make_file(recorded_inputs):
 def run():
     finished = False
     while not finished:
-        wait_for_go("press enter to start recording keyboard inputs.")
+        wait_for_go("press tab to start recording keyboard inputs.")
         recorded_inputs = record_keyboard()
-        wait_for_go("press enter to replay recorded keyboard inputs.")
-        replay(recorded_inputs)
-        print("finished replaying inputs")
-        if user_wants_to_save_record():
+        if user_boolean("would you like to replay the inputs you just recorded?"):
+            wait_for_go("press tab to replay recorded keyboard inputs.")
+            replay(recorded_inputs)
+            print("finished replaying inputs")
+        if user_boolean("would you like to save your inputs to a file?"):
             make_file(recorded_inputs)
-        result = input("would you like to record your keyboard again? \n1 = yes\n2 = no\n")
-        if result == "2":
+        if not user_boolean("would you like to record your keyboard again?"):
             finished = True
     print("done")
 
 
 if __name__ == "__main__":
     run()
-
-

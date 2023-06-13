@@ -30,10 +30,7 @@ def write_file(recorded_inputs, file_name):
 def get_file():
     while True:
         try:
-            file_name = input("Enter the name of the file you would like to replay.\n"
-                              "Press 1 if you'd like to quit the app\n")
-            if file_name == "1":
-                quit(1)
+            file_name = input("Enter the name of the file you would like to replay.\n")
             file = open(str(file_name) + ".txt", "r")
             return file
         except FileNotFoundError:
@@ -68,7 +65,7 @@ def run():
     finished = False
     while not finished:
         recorded_inputs, file = create_inputs_from_input_file()
-        Keyboard_Replayer.wait_for_go(f"press enter to replay keyboard inputs from {file.name}.")
+        Keyboard_Replayer.wait_for_go(f"press tab to replay keyboard inputs from {file.name}.")
         Keyboard_Replayer.replay(recorded_inputs)
         result = input("would you like to replay another file? \n1 = yes\n2 = no\n")
         if result == "2":
