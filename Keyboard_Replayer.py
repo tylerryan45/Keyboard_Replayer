@@ -1,5 +1,6 @@
 from pynput import keyboard
 from pynput.keyboard import Key, Controller
+import file_handler
 import time
 
 start_time: float
@@ -97,7 +98,6 @@ def wait_for_go(explanation):
 
     def on_release(key):
         if key == keyboard.Key.enter:
-            time.sleep(.1)
             return False
 
     print(explanation)
@@ -107,46 +107,29 @@ def wait_for_go(explanation):
 
 
 def replay(inputs):
-    controller = Controller()
-    for action in inputs:
-        time.sleep(float(action[0]))
-        if action[1][-1] == "p":
-            if action[1][0] == "'":
-                controller.press(str(action[1][1:-3]))
-            elif action[1][0] == "K":
-                press_special_key(action[1][:-2], controller)
-        elif action[1][-1] == "r":
-            if action[1][0] == "'":
-                controller.release(str(action[1][1:-3]))
-            elif action[1][0] == "K":
-                release_special_key(action[1][:-2], controller)
-
-
-def create_file(file_name):
     try:
-        open(file_name + ".txt", "x")
-        return True
-    except FileExistsError:
-        print(f"{file_name}.txt already exists. Would you like to overwrite it? Press enter to confirm input. "
-              f"\n1 = yes\n2 = no")
-        while True:
-            try:
-                response = input()
-                if response == "1":
-                    return True
-                elif response == "2":
-                    return False
-                else:
-                    raise TypeError
-            except TypeError:
-                print(f"enter only 1 or 2. \nWould you like to overwrite {file_name}.txt? \n1 = yes\n2 = no")
+        controller = Controller()
+        for action in inputs:
+            time.sleep(float(action[0]))
+            if action[1][-1] == "p":
+                if action[1][0] == "'":
+                    controller.press(str(action[1][1:-3]))
+                elif action[1][0] == "K":
+                    press_special_key(action[1][:-2], controller)
+            elif action[1][-1] == "r":
+                if action[1][0] == "'":
+                    controller.release(str(action[1][1:-3]))
+                elif action[1][0] == "K":
+                    release_special_key(action[1][:-2], controller)
+    except Exception:
+        print("error occured while trying to replay the inputs." + inputs)
 
 
 def user_wants_to_save_record():
     while True:
         try:
-            print("Would you like to save the recorded inputs? Press enter to confirm input. \n1 = yes\n2 = no")
-            result = input()
+            result = input("Would you like to save the recorded inputs? Press enter to confirm input. "
+                           "\n1 = yes\n2 = no\n")
             if result == "1":
                 return True
             elif result == "2":
@@ -157,51 +140,31 @@ def user_wants_to_save_record():
             print(f"Enter only 1 or 2.")
 
 
-def write_file(recorded_inputs, file_name):
-    file = open(file_name + ".txt", "w")
-    for action in recorded_inputs:
-        file.write(str(action) + "\n")
-
-
 def make_file(recorded_inputs):
     file_name = input("Enter the name of the file you would like to save the inputs to. Press enter when finished "
                       "writing file name. \n")
-    if create_file(file_name):
-        write_file(recorded_inputs, file_name)
+    if file_handler.create_file(file_name):
+        file_handler.write_file(recorded_inputs, file_name)
         print("file created")
 
 
-def get_file(file_name):
-    try:
-        file = open(str(file_name) + ".txt", "r")
-        return file
-    except FileNotFoundError:
-        print(f"{file_name} not found")
-
-
-def create_inputs_from_input_file():
-    file = get_file(input("Enter the name of the file you would like to replay.\n"))
-    file_inputs = []
-    for line in file:
-        line = line.split(",")
-        time_amount = float(line[0][1:])
-        instruction = line[1][2:-3]
-        file_inputs.append((time_amount, instruction))
-    return file_inputs
+def run():
+    finished = False
+    while not finished:
+        wait_for_go("press enter to start recording keyboard inputs.")
+        recorded_inputs = record_keyboard()
+        wait_for_go("press enter to replay recorded keyboard inputs.")
+        replay(recorded_inputs)
+        print("finished replaying inputs")
+        if user_wants_to_save_record():
+            make_file(recorded_inputs)
+        result = input("would you like to record your keyboard again? \n1 = yes\n2 = no\n")
+        if result == "2":
+            finished = True
+    print("done")
 
 
 if __name__ == "__main__":
-    wait_for_go("press enter to start recording keyboard inputs.")
-    recorded_inputs = record_keyboard()
-    wait_for_go("press enter to replay recorded keyboard inputs.")
-    replay(recorded_inputs)
-    print("finished replaying inputs")
-    if user_wants_to_save_record():
-        make_file(recorded_inputs)
-    print("done")
-    # recorded_inputs = create_inputs_from_input_file()
-    # print(recorded_inputs)
-    # wait_for_go()
-    # replay(recorded_inputs)
+    run()
 
 
