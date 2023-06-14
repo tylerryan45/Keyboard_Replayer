@@ -8,6 +8,20 @@ end_time: float
 recorded_key_presses: dict = {}
 
 
+def user_boolean(explanation):
+    while True:
+        try:
+            result = input(f"{explanation} \n1 = yes\n2 = no\n")
+            if result == "1":
+                return True
+            elif result == "2":
+                return False
+            else:
+                raise TypeError
+        except TypeError:
+            print(f"Enter only 1 or 2.")
+
+
 def record_keyboard():
     global start_time
     global end_time
@@ -47,6 +61,39 @@ def record_keyboard():
         listener.join()
     listener.stop()
     return recorded_key_presses
+
+
+def replay(inputs):
+    try:
+        controller = Controller()
+        for action in inputs:
+            time.sleep(float(action[0]))
+            if action[1][-1] == "p":
+                if action[1][0] == "'":
+                    controller.press(str(action[1][1:-3]))
+                elif action[1][0] == "K":
+                    press_special_key(action[1][:-2], controller)
+            elif action[1][-1] == "r":
+                if action[1][0] == "'":
+                    controller.release(str(action[1][1:-3]))
+                elif action[1][0] == "K":
+                    release_special_key(action[1][:-2], controller)
+    except Exception:
+        print("error occurred while trying to replay the inputs." + inputs)
+
+
+def wait_for_go(explanation):
+    def on_press(key):
+        pass
+
+    def on_release(key):
+        if key == keyboard.Key.tab:
+            return False
+
+    print(explanation)
+    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+        listener.join()
+    listener.stop()
 
 
 def press_special_key(key, controller):
@@ -91,61 +138,6 @@ def release_special_key(key, controller):
         controller.release(Key.backspace)
 
 
-def wait_for_go(explanation):
-    def on_press(key):
-        pass
-
-    def on_release(key):
-        if key == keyboard.Key.tab:
-            return False
-
-    print(explanation)
-    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-        listener.join()
-    listener.stop()
-
-
-def replay(inputs):
-    try:
-        controller = Controller()
-        for action in inputs:
-            time.sleep(float(action[0]))
-            if action[1][-1] == "p":
-                if action[1][0] == "'":
-                    controller.press(str(action[1][1:-3]))
-                elif action[1][0] == "K":
-                    press_special_key(action[1][:-2], controller)
-            elif action[1][-1] == "r":
-                if action[1][0] == "'":
-                    controller.release(str(action[1][1:-3]))
-                elif action[1][0] == "K":
-                    release_special_key(action[1][:-2], controller)
-    except Exception:
-        print("error occurred while trying to replay the inputs." + inputs)
-
-
-def user_boolean(explanation):
-    while True:
-        try:
-            result = input(f"{explanation} \n1 = yes\n2 = no\n")
-            if result == "1":
-                return True
-            elif result == "2":
-                return False
-            else:
-                raise TypeError
-        except TypeError:
-            print(f"Enter only 1 or 2.")
-
-
-def make_file(recorded_inputs):
-    file_name = input("Enter the name of the file you would like to save the inputs to. Press enter when finished "
-                      "writing file name. \n")
-    if file_handler.create_file(file_name):
-        file_handler.write_file(recorded_inputs, file_name)
-        print("file created")
-
-
 def run():
     finished = False
     while not finished:
@@ -156,7 +148,7 @@ def run():
             replay(recorded_inputs)
             print("finished replaying inputs")
         if user_boolean("would you like to save your inputs to a file?"):
-            make_file(recorded_inputs)
+            file_handler.make_file(recorded_inputs)
         if not user_boolean("would you like to record your keyboard again?"):
             finished = True
     print("done")

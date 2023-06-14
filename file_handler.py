@@ -1,24 +1,22 @@
 import Keyboard_Replayer
 
 
+def make_file(recorded_inputs):
+    file_name = input("Enter the name of the file you would like to save the inputs to. Press enter when finished "
+                      "writing file name. \n")
+    if create_file(file_name):
+        write_file(recorded_inputs, file_name)
+        print("file created")
+    else:
+        make_file(recorded_inputs)
+
+
 def create_file(file_name):
     try:
         open(file_name + ".txt", "x")
         return True
     except FileExistsError:
-        while True:
-            response = input(
-                print(f"{file_name}.txt already exists. Would you like to overwrite it? Press enter to confirm "
-                      f"input. \n1 = yes\n2 = no"))
-            try:
-                if response == "1":
-                    return True
-                elif response == "2":
-                    return False
-                else:
-                    raise TypeError
-            except TypeError:
-                print(f"enter only 1 or 2.")
+        return Keyboard_Replayer.user_boolean(f"{file_name}.txt already exists. Would you like to overwrite it?")
 
 
 def write_file(recorded_inputs, file_name):
